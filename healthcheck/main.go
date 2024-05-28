@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	"github.com/inconshreveable/go-update"
-	"github.com/marianina8/healthcheck/cmd"
+	"github.com/marianina8/healthcheck/healthcheck/cmd"
 )
 
 func main() {

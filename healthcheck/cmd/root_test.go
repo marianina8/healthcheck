@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/marianina8/healthcheck/logger"
+	"github.com/marianina8/healthcheck/healthcheck/logger"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 )

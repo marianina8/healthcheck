@@ -1,0 +1,86 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+    # you may remove this if you don't need go generate
+    - go generate ./...
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+
+archives:
+  - format: tar.gz
+    # this name template makes the OS and Arch compatible with the results of uname.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    # use zip for windows archives
+    format_overrides:
+    - goos: windows
+      format: zip
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
+release:
+ github:
+   owner: marianina8
+   name: healthcheck
+ draft: false
+ prerelease: auto
+
+brews:
+  -
+    name: healthcheck
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+    homepage: "https://github.com/marianina8"
+    description: "A tool for monitoring health status and responsiveness of web applications"
+    license: "MIT"
+    repository:
+      owner: marianina8
+      name: homebrew-healthcheck
+
+dockers:
+  - 
+    image_templates:
+      - "docker.io/marianmontagnino/healthcheck:{{.Version}}"
+    build_flag_templates:
+      - "--no-cache"
+
+nfpms:
+  - 
+    id: healthcheck
+    package_name: healthcheck
+
+    formats:
+      - deb
+      - rpm
+    homepage: https://github.com/marianina8/healthcheck
+    maintainer: Marian Montagnino <mmontagnino@gmail.com>
+    description: |-
+      A tool for monitoring health status and responsiveness of web applications
+    license: MIT
+    bindir: /usr/bin
+
+sboms:
+ - artifacts: archive

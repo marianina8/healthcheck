@@ -1,0 +1,63 @@
+---
+    name: Chocolatey Deploy
+    on:
+      push:
+        tags:
+          - "*"
+    defaults:
+      run:
+        shell: bash
+    jobs:
+      chocolatey:
+        name: Deploy
+        runs-on: windows-latest
+        steps:
+          - name: Checkout Repository
+            uses: actions/checkout@v4
+            with:
+              fetch-depth: 0
+          - name: Fetch All Tags
+            run: git fetch --tags
+          - name: List All Tags
+            run: git tag -l
+          - name: Find Latest Tag
+            id: latesttag
+            run: |
+              latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+              echo "latest_tag=$latest_tag" >> $GITHUB_ENV
+          - name: Print Working Directory
+            run: pwd
+          - name: List Files in Repository Root
+            run: dir
+          - name: Set Checksum
+            run: >
+              filename="healthcheck.exe"
+               url="https://github.com/${{ github.repository }}/releases/download/${{ steps.latesttag.outputs.tag }}/${filename}"
+               echo "Downloading $url"
+               sed -i "s#{URL64}#${url}#g" "choco/tools/chocolateyinstall.ps1"
+               curl -sSL "${url}" -o "choco/${filename}"
+               sha256=$(sha256sum "choco/${filename}" | awk '{ print $1 }')
+               sed -i "s/{SHA256CHECKSUM64}/${sha256}/g" "choco/tools/chocolateyinstall.ps1"
+          - name: Set Version
+            id: version
+            run: |
+              version=${{ env.latest_tag }}
+              echo "nuget=$version" >> $GITHUB_OUTPUT
+              sed -i "s/__REPLACE__/${version}/g" "choco/healthcheck.nuspec"
+          - name: Choco Downgrade
+            uses: crazy-max/ghaction-chocolatey@v3
+            with:
+              args: install chocolatey --version=1.2.1 --allow-downgrade -y -r --no-progress
+          - name: Create Output Directory
+            run: mkdir -p choco/healthcheck
+          - name: Pack Release
+            run: choco pack choco/healthcheck.nuspec --outputdirectory choco/healthcheck
+          - name: Choco Upgrade
+            uses: crazy-max/ghaction-chocolatey@v3
+            with:
+              args: upgrade chocolatey
+          - name: Push to Chocolatey
+            uses: crazy-max/ghaction-chocolatey@v3
+            with:
+              args: push choco/healthcheck/healthcheck.${{ steps.version.outputs.nuget }}.nupkg
+                -s https://push.chocolatey.org/ -k ${{ secrets.CHOCO_KEY }}
