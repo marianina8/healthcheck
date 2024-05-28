@@ -12,7 +12,7 @@ builds:
       - linux
       - windows
       - darwin
-  - main: ./healthcheck/
+    main: ./healthcheck/
 
 archives:
   - format: tar.gz
