@@ -6,7 +6,7 @@
    <title>Healthcheck</title>
    <authors>Marian Montagnino</authors>
    <packageSourceUrl>https://community.chocolatey.org/packages/healthcheck/</packageSourceUrl>
-   <projectUrl>https://github.com/marianina8/healthcheck/projectUrl>
+   <projectUrl>https://github.com/marianina8/healthcheck/projectUrl</projectUrl>
    <description>The healthcheck command is designed to assess the health and responsiveness of specified web applications. It sends HTTP requests to URLs provided by the user, evaluating whether the services are accessible and how quickly they respond. This command supports both immediate, one-off checks and continuous monitoring, allowing users to specify intervals for ongoing health assessments. With additional flags for customization, users can tailor the command to meet various monitoring needs, from simple uptime checks to detailed performance analysis. </description>
    <tags>cli golang healthcheck</tags>
  </metadata>
